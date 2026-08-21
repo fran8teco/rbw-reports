@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rbw
+      POSTGRES_PASSWORD: rbw_dev_password
+      POSTGRES_DB: rbw_reports
+    ports:
+      - "5432:5432"
+    volumes:
+      - rbw_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  rbw_postgres_data:
