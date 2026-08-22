@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { hash } from "bcryptjs";
 import { db } from "./index";
 import { organizations, users } from "./schema";
