@@ -1,4 +1,4 @@
-import { boolean, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const userRole = pgEnum("user_role", ["admin", "editor"]);
 export const platform = pgEnum("platform", ["meta", "google_ads", "ga4"]);
@@ -35,6 +35,12 @@ export const clients = pgTable("clients", {
   logoUrl: text("logo_url"),
   active: boolean("active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const loginRateLimits = pgTable("login_rate_limits", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(1),
+  resetAt: timestamp("reset_at", { withTimezone: true }).notNull(),
 });
 
 export const connectedAccounts = pgTable("connected_accounts", {
