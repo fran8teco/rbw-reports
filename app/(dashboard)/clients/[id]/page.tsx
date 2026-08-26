@@ -13,6 +13,7 @@ import { db } from "@/lib/db";
 import { ClientFormDialog } from "../client-form-dialog";
 import { AccountFormDialog } from "./account-form-dialog";
 import { DeleteAccountButton } from "./delete-account-button";
+import { SyncAccountButton } from "./sync-account-button";
 
 const platformLabels: Record<string, string> = {
   meta: "Meta Ads",
@@ -70,6 +71,7 @@ export default async function ClientDetailPage({
                 <TableHead>Nombre</TableHead>
                 <TableHead>ID externo</TableHead>
                 <TableHead>Estado</TableHead>
+                <TableHead>Última sync</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -82,7 +84,15 @@ export default async function ClientDetailPage({
                   <TableCell>
                     <Badge variant={statusVariant[account.status]}>{account.status}</Badge>
                   </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {account.lastSyncedAt
+                      ? new Date(account.lastSyncedAt).toLocaleString("es-UY")
+                      : "Nunca"}
+                  </TableCell>
                   <TableCell className="flex justify-end gap-2">
+                    {account.platform === "meta" && (
+                      <SyncAccountButton clientId={client.id} accountId={account.id} />
+                    )}
                     <AccountFormDialog clientId={client.id} account={account} />
                     <DeleteAccountButton
                       clientId={client.id}

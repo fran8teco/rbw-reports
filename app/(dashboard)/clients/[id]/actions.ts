@@ -4,6 +4,9 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { connectedAccounts } from "@/lib/db/schema";
+import { syncMetaAccount } from "@/lib/sync/meta";
+
+const BACKFILL_DAYS = 90;
 
 function parseAccountForm(formData: FormData) {
   const platform = String(formData.get("platform") ?? "");
@@ -54,4 +57,26 @@ export async function updateConnectedAccount(
 export async function deleteConnectedAccount(clientId: string, accountId: string) {
   await db.delete(connectedAccounts).where(eq(connectedAccounts.id, accountId));
   revalidatePath(`/clients/${clientId}`);
+}
+
+function isoDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+export async function syncConnectedAccountNow(clientId: string, accountId: string) {
+  const until = new Date();
+  const since = new Date(until.getTime() - BACKFILL_DAYS * 24 * 60 * 60 * 1000);
+
+  try {
+    const result = await syncMetaAccount({
+      connectedAccountId: accountId,
+      since: isoDate(since),
+      until: isoDate(until),
+    });
+    revalidatePath(`/clients/${clientId}`);
+    return { ok: true as const, rowsSynced: result.rowsSynced };
+  } catch (error) {
+    revalidatePath(`/clients/${clientId}`);
+    return { ok: false as const, message: error instanceof Error ? error.message : String(error) };
+  }
 }

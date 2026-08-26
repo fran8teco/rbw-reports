@@ -2,6 +2,7 @@ import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Toaster } from "@/components/ui/sonner";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -16,6 +17,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
             className="rounded-md px-2 py-1.5 text-sm hover:bg-muted"
           >
             Clientes
+          </Link>
+          <Link
+            href="/settings"
+            className="rounded-md px-2 py-1.5 text-sm hover:bg-muted"
+          >
+            Ajustes
           </Link>
         </nav>
       </aside>
@@ -36,6 +43,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <Separator />
         <main className="flex-1 p-6">{children}</main>
       </div>
+      <Toaster />
     </div>
   );
 }
