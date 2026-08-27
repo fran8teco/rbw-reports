@@ -76,7 +76,10 @@ export async function deleteGoogleAdsCredential() {
 
 export async function saveGa4Credential(formData: FormData) {
   const serviceAccountEmail = (formData.get("serviceAccountEmail") as string | null)?.trim();
-  const serviceAccountPrivateKey = (formData.get("serviceAccountPrivateKey") as string | null)?.trim();
+  const rawPrivateKey = (formData.get("serviceAccountPrivateKey") as string | null)?.trim();
+  // Pasting the raw JSON value keeps its escaped "\n" sequences as literal
+  // backslash-n text instead of real line breaks — normalize either form.
+  const serviceAccountPrivateKey = rawPrivateKey?.replace(/\\n/g, "\n");
 
   if (!serviceAccountEmail || !serviceAccountPrivateKey) {
     throw new Error("Email y clave privada del service account son obligatorios");
