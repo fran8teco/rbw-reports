@@ -1,6 +1,6 @@
 # RBW Reports
 
-Ver [`CLAUDE.md`](03%20RAINBOW®/APPS/RBW%20REPORTS/CLAUDE.md) y el brief técnico para contexto completo del proyecto.
+Ver [`CLAUDE.md`](./CLAUDE.md) y el brief técnico para contexto completo del proyecto.
 
 ## Desarrollo local
 
