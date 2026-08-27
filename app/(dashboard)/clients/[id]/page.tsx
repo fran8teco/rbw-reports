@@ -90,9 +90,7 @@ export default async function ClientDetailPage({
                       : "Nunca"}
                   </TableCell>
                   <TableCell className="flex justify-end gap-2">
-                    {account.platform === "meta" && (
-                      <SyncAccountButton clientId={client.id} accountId={account.id} />
-                    )}
+                    <SyncAccountButton clientId={client.id} accountId={account.id} />
                     <AccountFormDialog clientId={client.id} account={account} />
                     <DeleteAccountButton
                       clientId={client.id}

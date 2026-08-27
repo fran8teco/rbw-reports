@@ -1,19 +1,20 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
+import { Ga4CredentialForm } from "./ga4-credential-form";
+import { GoogleAdsCredentialForm } from "./google-ads-credential-form";
 import { MetaCredentialForm } from "./meta-credential-form";
 
 export default async function SettingsPage() {
   const session = await auth();
+  const organizationId = session?.user?.organizationId;
 
-  const credential = session?.user?.organizationId
-    ? await db.query.orgCredentials.findFirst({
-        where: (orgCredentials, { and, eq }) =>
-          and(
-            eq(orgCredentials.organizationId, session.user.organizationId),
-            eq(orgCredentials.platform, "meta"),
-          ),
+  const credentials = organizationId
+    ? await db.query.orgCredentials.findMany({
+        where: (orgCredentials, { eq }) => eq(orgCredentials.organizationId, organizationId),
       })
-    : undefined;
+    : [];
+
+  const byPlatform = Object.fromEntries(credentials.map((c) => [c.platform, c]));
 
   return (
     <div className="flex flex-col gap-8">
@@ -24,9 +25,19 @@ export default async function SettingsPage() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <h2 className="text-lg font-medium">Meta Ads</h2>
-        <MetaCredentialForm connected={!!credential} updatedAt={credential?.updatedAt ?? null} />
+      <div className="flex flex-col gap-6">
+        <MetaCredentialForm
+          connected={!!byPlatform.meta}
+          updatedAt={byPlatform.meta?.updatedAt ?? null}
+        />
+        <GoogleAdsCredentialForm
+          connected={!!byPlatform.google_ads}
+          updatedAt={byPlatform.google_ads?.updatedAt ?? null}
+        />
+        <Ga4CredentialForm
+          connected={!!byPlatform.ga4}
+          updatedAt={byPlatform.ga4?.updatedAt ?? null}
+        />
       </div>
     </div>
   );

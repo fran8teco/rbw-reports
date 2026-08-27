@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { deleteMetaCredential, saveMetaCredential } from "./actions";
+import { Textarea } from "@/components/ui/textarea";
+import { deleteGa4Credential, saveGa4Credential } from "./actions";
 
-export function MetaCredentialForm({
+export function Ga4CredentialForm({
   connected,
   updatedAt,
 }: {
@@ -19,14 +20,14 @@ export function MetaCredentialForm({
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
-      await saveMetaCredential(formData);
+      await saveGa4Credential(formData);
     });
   }
 
   return (
     <Card className="max-w-xl">
       <CardHeader className="flex flex-row items-center justify-between">
-        <span className="font-medium">Meta Ads (System User)</span>
+        <span className="font-medium">GA4 (Service Account)</span>
         <Badge variant={connected ? "default" : "secondary"}>
           {connected ? "Conectado" : "Sin conectar"}
         </Badge>
@@ -37,20 +38,34 @@ export function MetaCredentialForm({
             Última actualización: {updatedAt.toLocaleString("es-UY")}
           </p>
         )}
-        <form action={handleSubmit} className="flex flex-col gap-2">
-          <Label htmlFor="accessToken">Pegar token</Label>
-          <Input
-            id="accessToken"
-            name="accessToken"
-            type="password"
-            placeholder="EAAG..."
-            autoComplete="off"
-            required
-          />
+        <form action={handleSubmit} className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="serviceAccountEmail">Client email</Label>
+            <Input
+              id="serviceAccountEmail"
+              name="serviceAccountEmail"
+              placeholder="xxx@xxx.iam.gserviceaccount.com"
+              autoComplete="off"
+              required
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="serviceAccountPrivateKey">Private key</Label>
+            <Textarea
+              id="serviceAccountPrivateKey"
+              name="serviceAccountPrivateKey"
+              placeholder="-----BEGIN PRIVATE KEY-----..."
+              rows={5}
+              className="font-mono text-xs"
+              required
+            />
+          </div>
           <p className="text-xs text-muted-foreground">
-            Se cifra antes de guardarse. Nunca se muestra de nuevo en el panel.
+            Ambos valores están en el JSON que descargás al crear la clave del service account.
+            Se cifra antes de guardarse. Compartí la propiedad de GA4 de cada cliente con este
+            email (rol Viewer).
           </p>
-          <div className="mt-2 flex gap-2">
+          <div className="mt-1 flex gap-2">
             <Button type="submit" disabled={isPending}>
               {isPending ? "Guardando..." : connected ? "Reemplazar" : "Guardar"}
             </Button>
@@ -60,8 +75,8 @@ export function MetaCredentialForm({
                 variant="outline"
                 disabled={isPending}
                 onClick={() => {
-                  if (!confirm("¿Desconectar Meta Ads? Los syncs dejarán de funcionar.")) return;
-                  startTransition(() => deleteMetaCredential());
+                  if (!confirm("¿Desconectar GA4? Los syncs dejarán de funcionar.")) return;
+                  startTransition(() => deleteGa4Credential());
                 }}
               >
                 Desconectar
