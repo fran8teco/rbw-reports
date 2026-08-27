@@ -86,6 +86,7 @@ export async function fetchDailyMetrics({
       conversions: Number(row.metrics?.conversions ?? 0),
     }));
   } catch (error) {
+    console.error("[google-ads sync] raw error:", error);
     throw new GoogleAdsApiError(describeGoogleAdsError(error));
   }
 }
