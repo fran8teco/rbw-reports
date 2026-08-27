@@ -1,5 +1,33 @@
 import { GoogleAdsApi } from "google-ads-api";
 
+// google-ads-api's own error handler crashes on any auth/transport error whose
+// shape isn't a grpc-js Metadata object (e.g. an OAuth token exchange failure):
+// it does `error.metadata.internalRepr.get(...)` with no guard on `internalRepr`,
+// masking the real error behind "Cannot read properties of undefined (reading
+// 'get')". Patch it at runtime — a pnpm patch to the node_modules source doesn't
+// reliably survive the production build (Next's webpack cache keys the compiled
+// module by package version, and a patch doesn't bump that).
+let googleAdsErrorHandlerPatched = false;
+async function ensureGoogleAdsErrorHandlerPatched() {
+  if (googleAdsErrorHandlerPatched) return;
+  googleAdsErrorHandlerPatched = true;
+
+  const { Service } = await import("google-ads-api/build/src/service.js");
+  const original = (Service.prototype as unknown as Record<string, (error: unknown) => unknown>)
+    .getGoogleAdsError;
+
+  (Service.prototype as unknown as Record<string, (error: unknown) => unknown>).getGoogleAdsError =
+    function (this: unknown, error: unknown) {
+      const internalRepr = (error as { metadata?: { internalRepr?: unknown } })?.metadata?.internalRepr as
+        | { get?: unknown }
+        | undefined;
+      if (!internalRepr || typeof internalRepr.get !== "function") {
+        return error;
+      }
+      return original.call(this, error);
+    };
+}
+
 export type GoogleAdsDailyInsight = {
   date: string;
   spend: number;
@@ -35,6 +63,8 @@ export async function fetchDailyMetrics({
   until: string;
 }): Promise<GoogleAdsDailyInsight[]> {
   try {
+    await ensureGoogleAdsErrorHandlerPatched();
+
     const api = new GoogleAdsApi({ client_id: clientId, client_secret: clientSecret, developer_token: developerToken });
     const customer = api.Customer({
       customer_id: customerId.replace(/-/g, ""),
