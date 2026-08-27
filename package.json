@@ -49,5 +49,10 @@
     "tsx": "^4.23.12",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@9.15.9"
+  "packageManager": "pnpm@9.15.9",
+  "pnpm": {
+    "patchedDependencies": {
+      "google-ads-api": "patches/google-ads-api.patch"
+    }
+  }
 }

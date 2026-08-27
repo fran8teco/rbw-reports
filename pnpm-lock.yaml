@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  google-ads-api:
+    hash: 2pc3iwyix2j4cs2wi2desqsmvi
+    path: patches/google-ads-api.patch
+
 importers:
 
   .:
@@ -28,7 +33,7 @@ importers:
         version: 0.45.2(@opentelemetry/api@1.9.1)(pg@8.23.0)(postgres@3.4.9)
       google-ads-api:
         specifier: ^24.1.0
-        version: 24.1.0
+        version: 24.1.0(patch_hash=2pc3iwyix2j4cs2wi2desqsmvi)
       lucide-react:
         specifier: ^1.33.0
         version: 1.33.0(react@19.0.0)
@@ -6382,7 +6387,7 @@ snapshots:
       define-properties: 1.2.1
       gopd: 1.2.0
 
-  google-ads-api@24.1.0:
+  google-ads-api@24.1.0(patch_hash=2pc3iwyix2j4cs2wi2desqsmvi):
     dependencies:
       '@isaacs/ttlcache': 1.4.1
       axios: 1.20.0

@@ -1,0 +1,13 @@
+diff --git a/build/src/service.js b/build/src/service.js
+index 306c4e7591fa435afe1e5db5cf6b0d795928b9cb..41898b4987b9229b4b20f3efc06d6fede2315572 100644
+--- a/build/src/service.js
++++ b/build/src/service.js
+@@ -109,7 +109,7 @@ class Service {
+     }
+     getGoogleAdsError(error) {
+         // @ts-expect-error No type exists for GA query error
+-        if (typeof error?.metadata?.internalRepr.get(exports.FAILURE_KEY) === "undefined") {
++        if (typeof error?.metadata?.internalRepr?.get(exports.FAILURE_KEY) === "undefined") {
+             return error;
+         }
+         // @ts-expect-error No type exists for GA query error
