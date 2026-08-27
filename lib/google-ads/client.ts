@@ -56,7 +56,10 @@ export async function fetchDailyMetrics({
       conversions: Number(row.metrics?.conversions ?? 0),
     }));
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message =
+      error instanceof Error
+        ? `${error.stack ?? error.message}${"cause" in error ? ` | cause: ${String((error as { cause?: unknown }).cause)}` : ""}`
+        : String(error);
     throw new GoogleAdsApiError(message);
   }
 }
