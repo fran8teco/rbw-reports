@@ -2,8 +2,10 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getBoss } from "@/lib/boss";
 import { db } from "@/lib/db";
 import { connectedAccounts } from "@/lib/db/schema";
+import { enqueueMetaBackfill } from "@/lib/jobs/meta-sync";
 import { syncMetaAccount } from "@/lib/sync/meta";
 
 const BACKFILL_DAYS = 90;
@@ -40,7 +42,16 @@ function parseAccountForm(formData: FormData) {
 
 export async function createConnectedAccount(clientId: string, formData: FormData) {
   const values = parseAccountForm(formData);
-  await db.insert(connectedAccounts).values({ clientId, ...values });
+  const [account] = await db
+    .insert(connectedAccounts)
+    .values({ clientId, ...values })
+    .returning();
+
+  if (account.platform === "meta") {
+    const boss = await getBoss();
+    await enqueueMetaBackfill(boss, account.id);
+  }
+
   revalidatePath(`/clients/${clientId}`);
 }
 
