@@ -86,10 +86,28 @@ export async function fetchDailyMetrics({
       conversions: Number(row.metrics?.conversions ?? 0),
     }));
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? `${error.stack ?? error.message}${"cause" in error ? ` | cause: ${String((error as { cause?: unknown }).cause)}` : ""}`
-        : String(error);
-    throw new GoogleAdsApiError(message);
+    throw new GoogleAdsApiError(describeGoogleAdsError(error));
+  }
+}
+
+function describeGoogleAdsError(error: unknown): string {
+  // A successfully decoded GoogleAdsFailure has a structured `errors[]` array
+  // with the actual API error message(s) — surface those directly if present.
+  const failure = error as { errors?: { message?: string; error_code?: unknown }[] };
+  if (Array.isArray(failure?.errors) && failure.errors.length > 0) {
+    return failure.errors
+      .map((e) => e.message ?? JSON.stringify(e.error_code))
+      .join("; ");
+  }
+
+  if (error instanceof Error) {
+    const cause = "cause" in error ? ` | cause: ${String((error as { cause?: unknown }).cause)}` : "";
+    return `${error.stack ?? error.message}${cause}`;
+  }
+
+  try {
+    return JSON.stringify(error, Object.getOwnPropertyNames(Object(error)));
+  } catch {
+    return String(error);
   }
 }
